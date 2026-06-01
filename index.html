@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz: Lerntheorien</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f4f7fb; color: #222; padding: 24px 16px; }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; color: #1F3864; margin-bottom: 6px; }
+  .subtitle { color: #555; font-size: 0.95rem; margin-bottom: 28px; }
+  .section-title { background: #1F3864; color: white; padding: 10px 16px; border-radius: 6px 6px 0 0; font-size: 1rem; font-weight: bold; margin-top: 28px; }
+  .question-block { background: white; border: 1px solid #d0dce8; border-top: none; padding: 18px 20px; }
+  .question-block + .question-block { border-top: 1px solid #e8eef4; }
+  .question-block:last-of-type { border-radius: 0 0 6px 6px; }
+  .question-text { font-size: 0.97rem; font-weight: bold; margin-bottom: 12px; line-height: 1.5; }
+  .q-number { color: #2E75B6; margin-right: 6px; }
+  .option { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border-radius: 5px; cursor: pointer; margin-bottom: 6px; border: 1.5px solid #e0e8f0; transition: background 0.15s, border-color 0.15s; font-size: 0.93rem; line-height: 1.4; }
+  .option:hover { background: #eef4fb; border-color: #2E75B6; }
+  .option input[type="radio"] { margin-top: 2px; flex-shrink: 0; accent-color: #2E75B6; }
+  .option.correct { background: #e6f4ea; border-color: #34a853; }
+  .option.wrong { background: #fce8e6; border-color: #ea4335; }
+  .option.reveal-correct { background: #e6f4ea; border-color: #34a853; }
+  .feedback { margin-top: 10px; padding: 9px 13px; border-radius: 5px; font-size: 0.88rem; display: none; line-height: 1.5; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #e6f4ea; color: #1e7e34; }
+  .feedback.nope { background: #fce8e6; color: #c0392b; }
+  .btn-check { margin-top: 10px; background: #2E75B6; color: white; border: none; padding: 7px 18px; border-radius: 5px; cursor: pointer; font-size: 0.88rem; font-weight: bold; }
+  .btn-check:hover { background: #1F5A99; }
+  .btn-check:disabled { background: #aaa; cursor: default; }
+  .progress-bar-wrap { background: #dce8f5; border-radius: 20px; height: 8px; margin-bottom: 28px; overflow: hidden; }
+  .progress-bar { background: #2E75B6; height: 100%; width: 0%; border-radius: 20px; transition: width 0.3s; }
+  #submit-area { margin-top: 32px; text-align: center; }
+  #btn-submit { background: #1F3864; color: white; border: none; padding: 12px 36px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+  #btn-submit:hover { background: #162B4D; }
+  #result { display: none; margin-top: 28px; background: white; border: 2px solid #2E75B6; border-radius: 8px; padding: 24px; text-align: center; }
+  #result h2 { color: #1F3864; margin-bottom: 8px; }
+  .score { font-size: 2.2rem; font-weight: bold; color: #2E75B6; margin: 12px 0; }
+  .msg { color: #444; font-size: 0.97rem; }
+  #btn-restart { margin-top: 16px; background: #2E75B6; color: white; border: none; padding: 10px 28px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; }
+  #btn-restart:hover { background: #1F5A99; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Quiz: Lerntheorien</h1>
+  <p class="subtitle">Überprüfe dein Wissen zu den vier Lerntheorien. Beantworte jede Frage und klicke auf „Prüfen".</p>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress"></div></div>
+  <div id="quiz-form"></div>
+  <div id="submit-area"><button id="btn-submit" onclick="showResult()">Ergebnis anzeigen</button></div>
+  <div id="result">
+    <h2>Dein Ergebnis</h2>
+    <div class="score" id="score-text"></div>
+    <div class="msg" id="score-msg"></div>
+    <button id="btn-restart" onclick="location.reload()">Quiz wiederholen</button>
+  </div>
+</div>
+
+<script>
+const sections = [
+  {
+    title: "Klassisches Konditionieren",
+    questions: [
+      {
+        text: "Was ist ein unkonditionierter Reiz (UCS)?",
+        options: [
+          "Ein Reiz, der ohne vorheriges Lernen eine natürliche Reaktion auslöst",
+          "Ein Reiz, der erst durch Konditionierung wirksam wird",
+          "Ein neutraler Reiz ohne jede Wirkung"
+        ],
+        correct: 0,
+        explanation: "Der unkonditionierte Reiz (UCS) löst ohne jedes Lernen eine angeborene, natürliche Reaktion aus – wie Futter, das bei Pawlows Hunden Speichelfluss erzeugt. Erst durch die wiederholte Kopplung mit einem neutralen Reiz entsteht ein konditionierter Reiz (CS)."
+      },
+      {
+        text: "Ein Kind weint, sobald es die Praxis seines Kinderarztes betritt – obwohl es noch gar nicht behandelt wird. Welcher Begriff beschreibt das Weinen in diesem Moment?",
+        options: [
+          "Unkonditionierte Reaktion",
+          "Konditionierte Reaktion",
+          "Operante Reaktion"
+        ],
+        correct: 1,
+        explanation: "Das Weinen ist eine konditionierte Reaktion: Der Anblick der Praxis hat sich durch wiederholte Erfahrungen mit schmerzhaften Behandlungen mit Angst und Unbehagen verbunden. Der Raum selbst ist nun zum konditionierten Reiz (CS) geworden."
+      },
+      {
+        text: "Was versteht man unter Extinktion beim klassischen Konditionieren?",
+        options: [
+          "Der konditionierte Reiz wird durch Bestrafung entfernt",
+          "Der unkonditionierte Reiz wird intensiviert",
+          "Der konditionierte Reiz wird wiederholt ohne den unkonditionierten Reiz dargeboten, bis die Reaktion ausbleibt"
+        ],
+        correct: 2,
+        explanation: "Extinktion (Löschung) bedeutet: Wenn der konditionierte Reiz über längere Zeit nicht mehr mit dem unkonditionierten Reiz gekoppelt wird, tritt die konditionierte Reaktion schließlich nicht mehr auf. Das Gelernte wird – zumindest vorübergehend – gelöscht."
+      }
+    ]
+  },
+  {
+    title: "Operantes Konditionieren",
+    questions: [
+      {
+        text: "Was versteht man unter positiver Verstärkung?",
+        options: [
+          "Nach einem Verhalten wird ein angenehmer Reiz hinzugefügt, was das Verhalten wahrscheinlicher macht",
+          "Ein unangenehmer Reiz wird nach einem Verhalten entfernt",
+          "Ein Verhalten wird durch eine unangenehme Konsequenz abgeschwächt"
+        ],
+        correct: 0,
+        explanation: "Positive Verstärkung bedeutet: Auf ein Verhalten folgt etwas Angenehmes (z.B. Lob, Belohnung) – dadurch steigt die Wahrscheinlichkeit, dass das Verhalten wiederholt wird. Sie ist nicht zu verwechseln mit negativer Verstärkung, bei der ein unangenehmer Reiz wegfällt."
+      },
+      {
+        text: "Ein Kind räumt sein Zimmer auf, sobald die Mutter zu nörgeln beginnt – und die Mutter hört auf, wenn das Zimmer aufgeräumt ist. Was lernt das Kind durch diese Situation?",
+        options: [
+          "Dass Aufräumen bestraft wird, wenn es nicht rechtzeitig geschieht",
+          "Dass Aufräumen das unangenehme Nörgeln beendet – das Verhalten wird negativ verstärkt",
+          "Dass das Zimmer aufzuräumen eine positiv belohnte Leistung ist"
+        ],
+        correct: 1,
+        explanation: "Das ist ein klassisches Beispiel für negative Verstärkung (Fluchtlernen): Das Kind entkommt dem unangenehmen Reiz (Nörgeln) durch sein Verhalten (Aufräumen). Die Wahrscheinlichkeit, das Zimmer beim nächsten Nörgeln aufzuräumen, steigt. Negative Verstärkung ist keine Strafe – sie erhöht ein Verhalten."
+      },
+      {
+        text: "Was ist ein Extinktionsburst?",
+        options: [
+          "Eine dauerhafte Abnahme eines Verhaltens nach dem Wegfall der Verstärkung",
+          "Ein Verhalten, das durch Bestrafung vollständig unterdrückt wird",
+          "Eine kurzzeitige Zunahme des Verhaltens, wenn ein Verstärker erstmals wegbleibt"
+        ],
+        correct: 2,
+        explanation: "Wenn ein Verstärker plötzlich ausbleibt, zeigt das Verhalten zunächst eine kurzzeitige Intensivierung – den Extinktionsburst. Der Lernende \"versucht es noch intensiver\", weil das Verhalten bisher immer funktioniert hat. Erst danach nimmt es ab. Wer diesen Moment nicht aushält und doch nachgibt, verstärkt das Verhalten besonders stark."
+      },
+      {
+        text: "Ein Kind bastelt zu Hause sehr gerne und aus eigenem Antrieb. Die Eltern beginnen, es für jedes fertige Werk zu belohnen. Nach einer Weile bastelt das Kind nur noch, wenn es eine Belohnung bekommt. Was erklärt dieses Phänomen?",
+        options: [
+          "Der Korrumpierungseffekt: Externe Verstärkung hat die ursprüngliche intrinsische Motivation untergraben",
+          "Klassische Konditionierung: Das Basteln wurde zum konditionierten Reiz",
+          "Extinktion: Das Basteln wurde zu selten verstärkt"
+        ],
+        correct: 0,
+        explanation: "Der Korrumpierungseffekt (auch: Overjustification Effect) beschreibt, wie externe Verstärkung intrinsische Motivation untergraben kann. Eine Tätigkeit, die das Kind aus eigenem Interesse ausgeübt hat, wird nun als Mittel zur Belohnung wahrgenommen – und verliert ihren inneren Wert. Lob und Belohnung sind also nicht immer sinnvoll."
+      }
+    ]
+  },
+  {
+    title: "Modelllernen (Bandura)",
+    questions: [
+      {
+        text: "Welche vier Phasen beschreibt Bandura als Voraussetzungen für Modelllernen?",
+        options: [
+          "Motivation, Planung, Ausführung, Kontrolle",
+          "Aufmerksamkeit, Behalten, Reproduktion, Motivation",
+          "Reiz, Reaktion, Verstärkung, Löschung"
+        ],
+        correct: 1,
+        explanation: "Bandura beschreibt vier Phasen: (1) Aufmerksamkeit – das Modellverhalten muss wahrgenommen werden; (2) Behalten – es wird gespeichert; (3) Reproduktion – der Beobachtende führt das Verhalten aus; (4) Motivation – ein Anreiz muss vorhanden sein, das Gelernte zu zeigen."
+      },
+      {
+        text: "Welche Aussage zum Modelllernen ist richtig?",
+        options: [
+          "Modelllernen erfordert immer eine direkte Verstärkung des Lernenden",
+          "Modelllernen funktioniert nur mit Erwachsenen als Modell",
+          "Lernen kann allein durch Beobachtung stattfinden, ohne eigene direkte Erfahrung"
+        ],
+        correct: 2,
+        explanation: "Banduras Kernaussage: Der erste Schritt des Modelllernens – die Übernahme des Verhaltens durch Beobachtung – findet unabhängig von direkter Verstärkung statt. Erst die Ausführung des Verhaltens wird durch Verstärkungsprozesse beeinflusst. Das ist der entscheidende Unterschied zum operanten Konditionieren."
+      },
+      {
+        text: "Ein Erzieher zeigt einer unruhigen, aufgeregten Gruppe von Kindern, wie man einen Knoten bindet. Trotz mehrfacher Vorführung gelingt es kaum einem Kind, das Verhalten zu übernehmen. Welche Voraussetzung für Modelllernen ist hier wahrscheinlich nicht erfüllt?",
+        options: [
+          "Die Aufmerksamkeit der Kinder war nicht gesichert – eine zentrale Voraussetzung für Modelllernen",
+          "Der Erzieher war kein geeignetes Modell, weil er die Kinder nicht gut kennt",
+          "Modelllernen funktioniert bei motorischen Fertigkeiten grundsätzlich nicht"
+        ],
+        correct: 0,
+        explanation: "Aufmerksamkeit ist die erste und grundlegende Voraussetzung des Modelllernens. Unruhige, aufgeregte Kinder nehmen das gezeigte Verhalten gar nicht ausreichend wahr – die nachfolgenden Phasen (Behalten, Reproduktion) können dann nicht stattfinden. Die Lernumgebung muss Aufmerksamkeit ermöglichen."
+      }
+    ]
+  },
+  {
+    title: "Lernen aus konstruktivistischer Sicht",
+    questions: [
+      {
+        text: "Was ist der Kerngedanke des konstruktivistischen Lernverständnisses?",
+        options: [
+          "Wissen wird vom Lehrenden direkt auf den Lernenden übertragen",
+          "Lernende konstruieren Wissen aktiv auf der Grundlage eigener Erfahrungen und Vorwissen",
+          "Lernen findet ausschließlich durch Wiederholung und Übung statt"
+        ],
+        correct: 1,
+        explanation: "Konstruktivisten gehen davon aus, dass Wissen nicht übertragen, sondern vom Lernenden aktiv konstruiert wird – auf Basis eigener Erfahrungen, Vorwissen und subjektiver Sinngebung. Kein Mensch kann einen anderen etwas \"lehren\" im Sinne von direkter Wissensübertragung."
+      },
+      {
+        text: "Was versteht man im Konstruktivismus unter Viabilität?",
+        options: [
+          "Die Fähigkeit, Wissen dauerhaft im Gedächtnis zu verankern",
+          "Das Kriterium der lebenspraktischen Brauchbarkeit von Wissen – statt eines absoluten Wahrheitsanspruchs",
+          "Die Übereinstimmung des konstruierten Wissens mit einer objektiven Realität"
+        ],
+        correct: 1,
+        explanation: "Viabilität ist ein Schlüsselbegriff des Konstruktivismus (von Glasersfeld): Menschen lernen nicht nach dem Kriterium der objektiven Wahrheit, sondern danach, ob ein Wissen oder eine Handlungsstrategie für die Bewältigung der eigenen Lebenssituation brauchbar ist. Etwas ist \"richtig\", wenn es viabel ist – also funktioniert."
+      },
+      {
+        text: "Was unterscheidet das konstruktivistische Lernverständnis grundlegend vom Behaviorismus?",
+        options: [
+          "Der Behaviorismus fokussiert auf beobachtbares Verhalten und externe Reize; der Konstruktivismus betont innere Verarbeitungsprozesse und individuelle Sinnkonstruktion",
+          "Der Konstruktivismus lehnt jede Form von Verstärkung ab, der Behaviorismus befürwortet sie",
+          "Beide Ansätze unterscheiden sich nur in der Terminologie, nicht im Grundgedanken"
+        ],
+        correct: 0,
+        explanation: "Der Behaviorismus betrachtet den Menschen als durch äußere Reize gesteuertes Wesen – innere Prozesse spielen keine Rolle. Der Konstruktivismus dreht das um: Lernen ist ein aktiver, innerer Konstruktionsprozess, der durch Außeneinflüsse angeregt, aber nicht direkt gesteuert werden kann. Jeder Lernweg muss individuell konstruiert werden."
+      }
+    ]
+  }
+];
+
+let answered = new Set();
+let correct = new Set();
+let total = 0;
+
+function buildQuiz() {
+  const form = document.getElementById('quiz-form');
+  let qIndex = 0;
+  sections.forEach(section => {
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = section.title;
+    form.appendChild(title);
+
+    section.questions.forEach(q => {
+      total++;
+      const n = qIndex;
+      const block = document.createElement('div');
+      block.className = 'question-block';
+      block.dataset.correct = q.correct;
+      block.dataset.explanation = q.explanation;
+
+      const qText = document.createElement('div');
+      qText.className = 'question-text';
+      qText.innerHTML = '<span class="q-number">' + (n + 1) + '.</span>' + q.text;
+      block.appendChild(qText);
+
+      q.options.forEach((opt, i) => {
+        const label = document.createElement('label');
+        label.className = 'option';
+        label.innerHTML = '<input type="radio" name="q' + n + '" value="' + i + '"> ' + opt;
+        block.appendChild(label);
+      });
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-check';
+      btn.textContent = 'Prüfen';
+      btn.onclick = function() { checkQ(btn, n); };
+      block.appendChild(btn);
+
+      const fb = document.createElement('div');
+      fb.className = 'feedback';
+      block.appendChild(fb);
+
+      form.appendChild(block);
+      qIndex++;
+    });
+  });
+}
+
+function checkQ(btn, n) {
+  const block = btn.closest('.question-block');
+  const selected = block.querySelector('input[name="q' + n + '"]:checked');
+  if (!selected) return;
+
+  const correctVal = parseInt(block.dataset.correct);
+  const explanation = block.dataset.explanation;
+  const selectedVal = parseInt(selected.value);
+  const feedback = block.querySelector('.feedback');
+  const options = block.querySelectorAll('.option');
+
+  options.forEach((opt, i) => {
+    opt.querySelector('input').disabled = true;
+    if (i === correctVal) opt.classList.add('reveal-correct');
+    if (i === selectedVal && selectedVal !== correctVal) opt.classList.add('wrong');
+    if (i === selectedVal && selectedVal === correctVal) opt.classList.add('correct');
+  });
+
+  answered.add(n);
+  if (selectedVal === correctVal) {
+    correct.add(n);
+    feedback.textContent = '✓ Richtig!';
+    feedback.className = 'feedback show ok';
+  } else {
+    feedback.innerHTML = '✗ Nicht ganz. <strong>Erklärung:</strong> ' + explanation;
+    feedback.className = 'feedback show nope';
+  }
+
+  btn.disabled = true;
+  document.getElementById('progress').style.width = (answered.size / total * 100) + '%';
+}
+
+function showResult() {
+  const score = correct.size;
+  document.getElementById('score-text').textContent = score + ' / ' + total;
+  let msg = '';
+  if (score === total) msg = 'Perfekt – alle Fragen richtig!';
+  else if (score >= total * 0.8) msg = 'Sehr gut! Du hast die Grundbegriffe sicher verstanden.';
+  else if (score >= total * 0.6) msg = 'Gut. Einige Begriffe solltest du nochmals nachschlagen.';
+  else msg = 'Schau dir die Texte nochmals an – dann klappt es beim nächsten Versuch besser.';
+  document.getElementById('score-msg').textContent = msg;
+  const result = document.getElementById('result');
+  result.style.display = 'block';
+  result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
